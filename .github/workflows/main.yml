@@ -1,10 +1,14 @@
-jobs:
-  release-ios:
-    name: Build and release iOS app
-    runs-on: macos-latest
-    steps:
-      - name: access to secrets
-        run: |
-          echo "supabasekey=$supabasekey" >> .env
-        env:
-          supabasekey: ${{secrets.supabasekey}}
+  name: Test
+  on:
+    push:
+      branches:
+        - main
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      steps:
+
+        - name: Access Secrets
+          run : |
+            echo "Secrets : ${{secrets.API_KEY}}"
