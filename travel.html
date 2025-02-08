@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>여행 동행 메이트 구하기</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      />
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Dongle&family=Gasoek+One&display=swap" rel="stylesheet">
+
+    <style>
+        body{
+            font-family: "Black Han Sans", serif;
+            font-style: normal;
+        }
+        nav{
+            display: flex;
+            justify-content: space-between;
+        }
+        input, textarea {
+        width: 80%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+        }
+        button {
+        width: auto;
+        padding: 10px;
+        margin-top: 10px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        }
+        button:hover {
+        background-color: #0056b3;
+        }
+        #posts-list{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .post{
+            border: 1px solid black;
+            width: 40%;
+            height: 400px;
+            margin-right: 30px; 
+            margin-top: 30px;
+            padding: 30px;
+        }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">여행 동행</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="../travel_mate/index.html"
+              >여행메이트 구하기 <span class="sr-only">(current)</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../travel_test/index.html">여행지 추천</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../travel-planner/index.html"
+              >AI 여행일정 짜기</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link disabled"
+              href="#"
+              tabindex="-1"
+              aria-disabled="true"
+              >Disabled</a
+            >
+          </li>
+        </ul>
+        <button style="margin-left: auto;"  class="btn" id="logout-btn">로그아웃</button>
+      </div>
+    </nav>
+    <header class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">여행 동행 메이트 구하기</h1>
+        <p class="lead">함께 여행할 친구를 찾아보세요!</p>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="post-form">
+        <h2>새로운 게시글 작성</h2>
+        <form id="create-post-form">
+            <textarea id="post-title" placeholder="게시물 제목을 입력하세요" rows="1"></textarea>
+            <textarea id="post-content" placeholder="게시물 내용을 입력하세요" rows="10"></textarea>
+            <div>
+                <button id="create-post-btn">게시물 작성</button>
+            </div>
+        </form>
+      </section>
+
+      <section id="post-list">
+        <h2 style="margin-top: 30px;">게시글 목록</h2>
+        <div id="posts-list"></div>
+      </section>
+    </div>
+    <script type="module">
+        import {logout, islogin, createPost, loadPosts} from "./js/auth.js"
+
+        const logoutBtn = document.querySelector("#logout-btn");
+
+        logoutBtn.addEventListener("click", logout);
+        
+
+        document.getElementById('create-post-btn').addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            const title = document.getElementById('post-title').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+            if (!title) {
+                alert("게시물 제목을 입력하세요.");
+                return;
+            }
+            if (!content) {
+                alert("게시물 내용을 입력하세요.");
+                return;
+            }
+            const user_id = JSON.parse(localStorage.getItem("user"));
+            console.log(user_id);
+            if (!user_id){
+                alert("로그인을 해주세요")
+                islogin();
+            }
+            const error = await createPost(title, content, user_id);
+            
+            if (error) {
+                alert('게시물 작성 실패: ' + error.message);
+            } else {
+                alert('게시물 작성 성공!');
+                document.getElementById('post-title').value = '';
+                document.getElementById('post-content').value = '';
+                
+                loadPost();
+            }
+        });
+
+        async function loadPost() {
+            const posts = await loadPosts(); // 게시물 목록 새로고침
+
+            const postsList = document.getElementById('posts-list');
+
+            postsList.innerHTML = '';
+            posts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = "post";
+                // 간단하게 내용과 작성자 ID, 생성시간 표시 (원하는 대로 수정 가능)
+                postDiv.innerHTML = `<h2>${post.title}</h2><br>${post.content}<br>
+                                    <small>작성자: ${post.userinfo.username} / ${new Date(post.created_at).toLocaleString()}</small>`;
+                postsList.appendChild(postDiv);
+            });
+        }
+
+        function makePost(){
+
+        }
+
+        islogin();
+        loadPost();
+    </script>
+  </body>
+</html>
