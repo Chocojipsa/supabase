@@ -1,13 +1,13 @@
-
 {
   "scripts": {
-  "start": "react-scripts start",
-  "build": "react-scripts build",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject"
-},
-
+    "start": "http-server . -c-1",  
+    "build": "echo \"빌드 과정이 필요하지 않습니다.\"",
+    "test": "echo \"테스트 스크립트가 정의되어 있지 않습니다.\""
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
   }
 }
