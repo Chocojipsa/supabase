@@ -1,8 +1,23 @@
+name: Run JavaScript Script
+
+on: push  # `push` 이벤트 발생 시 실행
+
 jobs:
-  deploy:
+  run-script:
     runs-on: ubuntu-latest
     steps:
-      - name: Use GitHub API Key
-        run: echo "Using API key"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run script with GitHub API Key
+        run: node script.js
         env:
           GITHUB_API_KEY: ${{ secrets.supabasekey }}
