@@ -1,10 +1,10 @@
 name: Run JavaScript Script
 
 on:
-  push:  # push할 때 실행
+  push:
     branches:
-      - main  # main 브랜치에서만 실행
-  workflow_dispatch:  # GitHub Actions에서 수동 실행 가능
+      - main
+  workflow_dispatch:
 
 jobs:
   run-script:
@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Debug repository structure
+        run: ls -la  # 현재 디렉토리 확인
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -24,4 +27,4 @@ jobs:
       - name: Run script with GitHub API Key
         run: node script.js
         env:
-          GITHUB_API_KEY: ${{ secrets.GITHUB_API_KEY }}
+          supabasekey: ${{ secrets.supabasekey }}
