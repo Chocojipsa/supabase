@@ -24,7 +24,7 @@ async function login(email, password) {
         return;
     }
     localStorage.setItem("user", JSON.stringify(data.user.id)); // ✅ 로그인 상태 저장
-    localStorage.setItem("user_name", JSON.stringify(data.userinfo.username));
+    localStorage.setItem("user_name", JSON.stringify(data.user.id));
     window.location.href = "travel.html";
 }
 
