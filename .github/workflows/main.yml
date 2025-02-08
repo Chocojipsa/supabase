@@ -1,14 +1,17 @@
-  name: Test
-  on:
-    push:
-      branches:
-        - main
-  jobs:
-    build:
-      runs-on: ubuntu-latest
+name: Test
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-      steps:
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-        - name: Access Secrets
-          run : |
-            echo "Secrets : ${{secrets.supabasekey}}"
+      - name: Run Node Script with Supabase Key
+        env:
+          SUPABASEKEY: ${{ secrets.supabasekey }}
+        run: node myscript.js
