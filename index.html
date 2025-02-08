@@ -71,6 +71,13 @@
         supabaselogin();
       }
     });
+
+    const input2 = document.querySelector('input[type="password"]');
+    input2.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        supabaselogin();
+      }
+    });
     // 게시물 작성 기능
     // document.getElementById('create-post-btn').addEventListener('click', async () => {
     //   const title = document.getElementById('post-title').value;

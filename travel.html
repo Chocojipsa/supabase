@@ -123,7 +123,7 @@
       </section>
     </div>
     <script type="module">
-        import {logout, islogin, createPost, loadPosts} from "./js/auth.js"
+        import {logout, islogin, createPost, loadPosts, deletePost_auth, editPost_auth, updatePost_auth} from "./js/auth.js"
 
         const logoutBtn = document.querySelector("#logout-btn");
 
@@ -144,7 +144,6 @@
                 return;
             }
             const user_id = JSON.parse(localStorage.getItem("user"));
-            console.log(user_id);
             if (!user_id){
                 alert("로그인을 해주세요")
                 islogin();
@@ -164,24 +163,141 @@
 
         async function loadPost() {
             const posts = await loadPosts(); // 게시물 목록 새로고침
+            const user_id = JSON.parse(localStorage.getItem("user"));
 
             const postsList = document.getElementById('posts-list');
 
             postsList.innerHTML = '';
             posts.forEach(post => {
                 const postDiv = document.createElement('div');
+                const postTitle = document.createElement('h1');
+                const postContent = document.createElement('div');
+                const postDate = document.createElement('div');
+                postDiv.id = `post-${post.id}`;
                 postDiv.className = "post";
+            
                 // 간단하게 내용과 작성자 ID, 생성시간 표시 (원하는 대로 수정 가능)
-                postDiv.innerHTML = `<h2>${post.title}</h2><br>${post.content}<br>
-                                    <small>작성자: ${post.userinfo.username} / ${new Date(post.created_at).toLocaleString()}</small>`;
+
+                postTitle.innerText = post.title;
+                postTitle.id = `post-title-${post.id}`;
+                postContent.innerText = post.content;
+                postContent.id = `post-content-${post.id}`;
+                postDate.innerText = `작성자: ${post.userinfo?.username || "알 수 없음"} / ${new Date(post.created_at).toLocaleString()}`;
+                
+                
+                postDiv.appendChild(postTitle);
+                postDiv.appendChild(postContent);
+                postDiv.appendChild(postDate);
+                if(isAuthorOrAdmin(post.user_id, user_id)){
+                    const editBtn = document.createElement("button");
+                    const deleteBtn = document.createElement("button");
+                    editBtn.textContent = "수정";
+                    deleteBtn.textContent = "삭제";
+                    editBtn.className = "btn btn-warning btn-sm";
+                    deleteBtn.className = "btn btn-danger btn-sm";
+                    editBtn.id = `edit-${post.id}`;
+                    deleteBtn.id = `delete-${post.id}`;
+                    postDiv.appendChild(editBtn);
+                    postDiv.appendChild(deleteBtn);
+                }
+                
+
                 postsList.appendChild(postDiv);
+
+                // 수정 버튼에 이벤트 리스너 추가
+                const editButton = document.getElementById(`edit-${post.id}`);
+                if (editButton) {
+                    editButton.addEventListener('click', () => editPost(post));
+                }
+
+                // 삭제 버튼에 이벤트 리스너 추가
+                const deleteButton = document.getElementById(`delete-${post.id}`);
+                if (deleteButton) {
+                    deleteButton.addEventListener('click', () => deletePost(post.id));
+                }
+                    postsList.appendChild(postDiv);
             });
         }
 
-        function makePost(){
-
+        function isAuthorOrAdmin(postUserId, loggedInUserId) {
+            // 게시물의 작성자 ID와 로그인한 사용자 ID를 비교하거나, 관리자 권한을 체크
+            const isAdmin = loggedInUserId === '0fd237bc-94d9-4d18-81d6-dde3dcef7637';  // 관리자 ID를 비교하는 조건 추가
+            return postUserId === loggedInUserId || isAdmin;
         }
 
+        async function deletePost(postid) {
+            const result = window.confirm("삭제하시겠습니까?");
+            if (result){
+                await deletePost_auth(postid);
+                loadPost();
+            }
+            else{
+
+            }
+        }
+
+        async function editPost(post) {
+            const postDiv = document.getElementById(`post-${post.id}`);
+            const titleElement = document.querySelector(`#post-title-${post.id}`);
+            const contentElement = document.querySelector(`#post-content-${post.id}`);
+            // 기존 제목과 내용을 input, textarea로 변경
+            const titleInput = document.createElement('input');
+            titleInput.value = titleElement.innerText;
+            titleInput.className = 'form-control';
+            
+            const contentTextarea = document.createElement('textarea');
+            contentTextarea.value = contentElement.innerText;
+            contentTextarea.className = 'form-control';
+
+            // 기존 제목과 내용 제거 후 새로 추가
+            titleElement.replaceWith(titleInput);
+            contentElement.replaceWith(contentTextarea);
+
+            // 버튼을 "확인"과 "취소"로 변경
+            const editBtn = document.querySelector(`#edit-${post.id}`);
+            const deleteBtn = postDiv.querySelector(`#delete-${post.id}`);
+
+            editBtn.remove()
+            deleteBtn.remove()
+
+            const confirmBtn = document.createElement("button");
+            const cancelBtn = document.createElement("button");
+            confirmBtn.textContent = "확인";
+            cancelBtn.textContent = "취소";
+            confirmBtn.className = "btn btn-warning btn-sm";
+            cancelBtn.className = "btn btn-danger btn-sm";
+            confirmBtn.id = `confirm-${post.id}`;
+            cancelBtn.id = `cancel-${post.id}`;
+            postDiv.appendChild(confirmBtn);
+            postDiv.appendChild(cancelBtn);
+
+            confirmBtn.addEventListener('click', async () => {
+                const updatedTitle = titleInput.value.trim();
+                const updatedContent = contentTextarea.value.trim();
+                const result = window.confirm("수정하시겠습니까?");
+    
+                if (updatedTitle && updatedContent) {
+                    // Supabase에 업데이트 요청
+                    if (result){
+                        const error = await updatePost_auth(post.id, updatedTitle, updatedContent);
+                        if (error) {
+                            alert("수정 실패!");
+                        } else {
+                            alert("수정 완료")
+                            loadPost();
+                        }
+                    }
+                    
+                } else {
+                    alert("제목과 내용을 모두 입력해주세요.");
+                }
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                // 원래 상태로 복구
+                loadPost(); // 새로고침으로 원상태로 복귀
+            });
+        }
         islogin();
         loadPost();
     </script>

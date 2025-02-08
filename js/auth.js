@@ -24,7 +24,6 @@ async function login(email, password) {
         return;
     }
     localStorage.setItem("user", JSON.stringify(data.user.id)); // ✅ 로그인 상태 저장
-    localStorage.setItem("user_name", JSON.stringify(data.userinfo.username));
     window.location.href = "travel.html";
 }
 
@@ -103,9 +102,8 @@ async function loadPosts() {
     // posts 테이블과 userinfo 테이블을 조인하여 username 가져오기
     const { data: posts, error } = await supabase
       .from('posts')
-      .select(`*, userinfo(username)`)
-      .order('created_at', { ascending: false });
-
+      .select(`*, userinfo : userinfo(username)`)
+      .order('id', { ascending: false });
     if (error) {
       console.error("게시물 불러오기 실패:", error);
       return error;
@@ -113,4 +111,57 @@ async function loadPosts() {
     return posts;
 }
 
-export {loadPosts, createPost, signup, login, logout, checkLogin, checkNickname,islogin, islogined};
+async function editPost_auth(postId, newTitle, newContent) {
+    try {
+        // 'posts' 테이블에서 해당 postId에 맞는 게시물을 수정합니다.
+        const { data, error } = await supabase
+            .from('posts')
+            .update({ title: newTitle, content: newContent })
+            .eq('id', postId); // postId로 해당 게시물 찾기
+
+        if (error) {
+            throw error;
+        }
+
+        return data; // 수정된 데이터 반환
+    } catch (error) {
+        console.error("게시물 수정 실패:", error);
+        return { error };
+    }
+}
+
+async function deletePost_auth(postId) {
+    try {
+        // 'posts' 테이블에서 해당 postId에 맞는 게시물을 삭제합니다.
+        const { data, error } = await supabase
+            .from('posts')
+            .delete()
+            .eq('id', postId); // postId로 해당 게시물 찾기
+
+        if (error) {
+            throw error;
+        }
+
+        return data; // 삭제된 데이터 반환
+    } catch (error) {
+        console.error("게시물 삭제 실패:", error);
+        return { error };
+    }
+}
+
+async function updatePost_auth(postId, newTitle, newContent) {
+    const { data, error } = await supabase
+        .from('posts')
+        .update({ title: newTitle, content: newContent, created_at : new Date().toISOString() })
+        .eq('id', postId);
+
+    if (error) {
+        console.error('게시물 수정 실패:', error);
+        return error;
+    }
+
+    return data;
+}
+
+
+export {loadPosts, createPost, signup, login, logout, checkLogin, checkNickname,islogin, islogined, editPost_auth, deletePost_auth, updatePost_auth};
