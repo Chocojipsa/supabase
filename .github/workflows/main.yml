@@ -11,4 +11,4 @@
 
         - name: Access Secrets
           run : |
-            echo "Secrets : ${{secrets.API_KEY}}"
+            echo "Secrets : ${{secrets.supabasekey}}"
