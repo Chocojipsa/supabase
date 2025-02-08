@@ -1,6 +1,10 @@
 name: Run JavaScript Script
 
-on: push  # `push` 이벤트 발생 시 실행
+on:
+  push:  # push할 때 실행
+    branches:
+      - main  # main 브랜치에서만 실행
+  workflow_dispatch:  # GitHub Actions에서 수동 실행 가능
 
 jobs:
   run-script:
@@ -20,4 +24,4 @@ jobs:
       - name: Run script with GitHub API Key
         run: node script.js
         env:
-          GITHUB_API_KEY: ${{ secrets.supabasekey }}
+          GITHUB_API_KEY: ${{ secrets.GITHUB_API_KEY }}
