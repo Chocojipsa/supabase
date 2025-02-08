@@ -5,4 +5,4 @@ jobs:
       - name: Use GitHub API Key
         run: echo "Using API key"
         env:
-          GITHUB_API_KEY: ${{ secrets.GITHUB_API_KEY }}
+          GITHUB_API_KEY: ${{ secrets.supabasekey }}
