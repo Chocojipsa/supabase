@@ -1,17 +1,31 @@
-name: Test
+name: Build and Test
+
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      # Repository Secrets에 저장된 SUPABASE_KEY 값을 환경 변수로 전달합니다.
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run Node Script with Supabase Key
-        env:
-          SUPABASE_KEY: ${{ secrets.supabase }}
-        run: node supabase.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
