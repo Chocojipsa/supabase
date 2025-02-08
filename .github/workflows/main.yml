@@ -13,5 +13,5 @@ jobs:
 
       - name: Run Node Script with Supabase Key
         env:
-          SUPABASEKEY: ${{ secrets.supabasekey }}
+          SUPABASE_KEY: ${{ secrets.supabase }}
         run: node myscript.js
