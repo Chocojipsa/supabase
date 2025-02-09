@@ -73,15 +73,15 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item active">
-            <a class="nav-link" href="../travel_mate/index.html"
+            <a class="nav-link" href="travel.html"
               >여행메이트 구하기 <span class="sr-only">(current)</span></a
             >
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../travel_test/index.html">여행지 추천</a>
+            <a class="nav-link" href="test.html">여행지 추천</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../travel-planner/index.html"
+            <a class="nav-link" href="plan.html"
               >AI 여행일정 짜기</a
             >
           </li>
@@ -214,8 +214,7 @@
                 const deleteButton = document.getElementById(`delete-${post.id}`);
                 if (deleteButton) {
                     deleteButton.addEventListener('click', () => deletePost(post.id));
-                }
-                    postsList.appendChild(postDiv);
+                }                    
             });
         }
 

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>인기 여행지</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Dongle&family=Gasoek+One&display=swap" rel="stylesheet">
+    <style>
+        body{
+            font-family: "Black Han Sans", serif;
+            font-style: normal;
+        }
+      .like-btn {
+        cursor: pointer;
+      }
+      nav{
+            display: flex;
+            justify-content: space-between;
+        }
+        #posts-list{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .post{
+            border: 1px solid black;
+            width: 40%;
+            height: 400px;
+            margin-right: 30px; 
+            margin-top: 30px;
+            padding: 30px;
+        }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">여행 동행</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item ">
+            <a class="nav-link" href="travel.html"
+              >여행메이트 구하기</a
+            >
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="test.html">여행지 추천</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="plan.html"
+              >AI 여행일정 짜기</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link disabled"
+              href="#"
+              tabindex="-1"
+              aria-disabled="true"
+              >Disabled</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <header class="text-center my-5">
+        <h1>인기 여행지</h1>
+        <p>여행 맛집 &amp; 관광지 추천 게시판</p>
+      </header>
+
+      <section id="post-form" class="mb-5">
+        <div class="card">
+          <div class="card-header">새로운 추천 작성</div>
+          <div class="card-body">
+            <form id="recommendation-form">
+              <div class="form-group">
+                <label for="placeName">장소 이름:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="placeName"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="location">위치 (간략하게):</label>
+                <input type="text" class="form-control" id="location" />
+              </div>
+              <div class="form-group">
+                <label for="imageURL">이미지 (선택):</label>
+                <input
+                  type="file"
+                  id="image"
+                  accept="image/*"
+                />
+              </div>
+              <div class="form-group">
+                <label for="recommendationText">추천 내용:</label>
+                <textarea
+                  class="form-control"
+                  id="recommendationText"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+              <button id = "create_post" type="submit" class="btn btn-primary">
+                추천 게시글 작성
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="post-list">
+        <h2>인기 여행장소 목록</h2>
+        <div id="posts-list" class="row"></div>
+      </section>
+    </div>
+    <script type="module">
+        import {createPost_Recommend_auth,uploadImage_auth, loadPosts_Recommend_auth, getImagePath} from "./js/auth.js";
+
+        const create_Btn = document.querySelector("#create_post");
+        create_Btn.addEventListener("click", async (event) => {
+            event.preventDefault();
+            await createPost_Recommend();
+        })
+
+        async function createPost_Recommend() {
+            const title = document.querySelector("#placeName").value.trim();
+            const content = document.querySelector("#recommendationText").value.trim();
+            const image = document.querySelector("#image");
+            const imagefile = image.files[0];
+            const place = document.querySelector("#location").value.trim();
+            const user_id = JSON.parse(localStorage.getItem("user"));
+            let filePath = null;
+
+            if (imagefile){
+                console.log("이미지 업로드 확인");
+                filePath = `images/${Date.now()}_${imagefile.name}`;
+                const error = await uploadImage_auth(filePath, imagefile);
+                if(error){
+                    console.error('업로드 실패:', error.message);
+                    alert('이미지 업로드 실패!');
+                }
+            }
+            console.log("게시물 저장")
+            const error = await createPost_Recommend_auth(title, content, filePath, place, user_id);
+            if(error){
+                console.log("저장 실패 : ", error.message);
+            }
+            document.querySelector("#placeName").value = '';
+            document.querySelector("#recommendationText").value = '';
+            document.querySelector("#image").value = '';
+            document.querySelector("#location").value = '';
+            loadPost_Recommend();
+        }
+
+        async function loadPost_Recommend() {
+            const posts = await loadPosts_Recommend_auth(); // 게시물 목록 새로고침
+            const user_id = JSON.parse(localStorage.getItem("user"));
+
+            const postsList = document.getElementById('posts-list');
+
+            postsList.innerHTML = '';
+            posts.forEach(post => {
+                const postDiv = document.createElement('div');
+                const postTitle = document.createElement('h1');
+                const postContent = document.createElement('div');
+                const postPlace = document.createElement('div');
+        
+                const postDate = document.createElement('div');
+
+                postDiv.id = `post-${post.id}`;
+                postDiv.className = "post";
+            
+                // 간단하게 내용과 작성자 ID, 생성시간 표시 (원하는 대로 수정 가능)
+
+                postTitle.innerText = post.title;
+                postTitle.id = `post-title-${post.id}`;
+                postContent.innerText = post.content;
+                postContent.id = `post-content-${post.id}`;
+                postPlace.innerText = post.place;
+                postPlace.id = `post-place-${post.id}`;
+
+                postDate.innerText = `작성자: ${post.userinfo?.username || "알 수 없음"} / ${new Date(post.created_at).toLocaleString()}`;
+                
+                
+                postDiv.appendChild(postTitle);
+                postDiv.appendChild(postPlace);
+                if(post.url){
+                    const postImage = document.createElement('img');
+                    postImage.id = `post-image-${post.id}`;
+                    const publicUrl = getImagePath(post.url);
+                    postImage.src = publicUrl;
+                    postImage.style.display = 'block';
+                    postImage.style.height = '60%';
+                    postDiv.appendChild(postImage);
+                }
+                postDiv.appendChild(postContent);
+                postDiv.appendChild(postDate);            
+
+                postsList.appendChild(postDiv);
+            });
+        }
+
+        loadPost_Recommend();
+    </script>
+  </body>
+</html>

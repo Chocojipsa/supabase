@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko"> <head>
+    <title>Gemini API 여행지 추천 (Bootstrap 적용)</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" /> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Dongle&family=Gasoek+One&display=swap" rel="stylesheet">
+    <style>
+        /* 추가적인 커스텀 스타일 (선택 사항) */
+        body{
+            font-family: "Black Han Sans", serif;
+            font-style: normal;
+        }
+        nav{
+            display: flex;
+            justify-content: space-between;
+        }
+        #answerArea ul { list-style: none; padding-left: 0; } /* ul 기본 list style 제거 */
+        #answerArea li { margin-bottom: 0.5rem; } /* li 요소 하단 margin 추가 */
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">여행 동행</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a class="nav-link" href="travel.html"
+                >여행메이트 구하기</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="test.html">여행지 추천</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="plan.html"
+                >AI 여행일정 짜기</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link disabled"
+                href="#"
+                tabindex="-1"
+                aria-disabled="true"
+                >Disabled</a
+              >
+            </li>
+          </ul>
+        </div>
+      </nav>
+    <div class="container"> <header class="text-center mb-4"> <h1>AI 여행지 추천</h1> <p class="lead">여행 장소, 음식점, 관광지, 시간대를 입력하고 추천을 받아보세요.</p> </header>
+
+        <section class="mb-4"> <div class="row justify-content-center"> <div class="col-md-8"> <div class="mb-3"> <label for="destinationInput" class="form-label"><strong>여행지 장소</strong></label> <input type="text" class="form-control" id="destinationInput" placeholder="예: 서울" /> </div>
+                    <div class="mb-3"> <label for="restaurantCountInput" class="form-label"><strong>음식점 개수</strong></label>
+                        <input type="number" class="form-control" id="restaurantCountInput" placeholder="예: 3" value="3" min="1" />
+                    </div>
+                    <div class="mb-3"> <label for="touristSiteCountInput" class="form-label"><strong>관광지 개수</strong></label>
+                        <input type="number" class="form-control" id="touristSiteCountInput" placeholder="예: 2" value="2" min="1" />
+                    </div>
+                    <div class="mb-3"> <label for="timeInput" class="form-label"><strong>시간대</strong></label>
+                        <input type="text" class="form-control" id="timeInput" placeholder="예: 오후, 저녁" />
+                    </div>
+                    <div class="d-grid gap-2"> <button id="askButton" class="btn btn-primary btn-lg">질문하기</button> </div>
+                </div>
+            </div>
+        </section>
+
+        <section> <h2>답변:</h2> <div id="answerArea" class="mt-3"> <ul id="answerList" class="list-unstyled"> <li>여기에 답변이 목록 형태로 표시됩니다.</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer class="mt-5 text-center text-muted"> <p><small>----------------------------</small></p> </footer>
+    </div>
+
+    <script>
+       
+        const apiKey = "AIzaSyCjJeFd04uDAsqYthhLNFEfZd4UzJDb9Tw"; 
+        const destinationInput = document.getElementById("destinationInput");
+        const restaurantCountInput = document.getElementById("restaurantCountInput");
+        const touristSiteCountInput = document.getElementById("touristSiteCountInput");
+        const timeInput = document.getElementById("timeInput");
+        const askButton = document.getElementById("askButton");
+        const answerListElement = document.getElementById("answerList");
+
+        askButton.addEventListener("click", async () => {
+            const destination = destinationInput.value;
+            const restaurantCount = restaurantCountInput.value;
+            const touristSiteCount = touristSiteCountInput.value;
+            const time = timeInput.value;
+
+            if (!destination.trim()) {
+                alert("여행지 장소를 입력해주세요.");
+                return;
+            }
+
+            answerListElement.innerHTML = '<li class="list-group-item">답변을 기다리는 중...</li>'; 
+
+            const prompt = `여행지: ${destination}, 음식점 개수: ${restaurantCount}곳, 관광지 개수: ${touristSiteCount}곳, 시간대: ${time}을 바탕으로 여행일정 계획하고 추천 또는 정보를 리스트 형식으로 <li> 태그를 사용하여 HTML로 만들고, Bootstrap 스타일을 적용하여 더욱 보기 좋게 만들어줘. 각 항목은 핵심 정보만 간결하게 요약해줘.꼭 ! markdown 지워줘`; // 프롬프트 수정 (Bootstrap 스타일링 요청)
+
+            try {
+                const response = await fetch(
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-001:generateContent?key=" +
+                    apiKey,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            contents: [
+                                {
+                                    parts: [{ text: prompt }],
+                                },
+                            ],
+                        }),
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("API 응답:", data);
+
+                let answer = "";
+                if (
+                    data.candidates &&
+                    data.candidates[0].content &&
+                    data.candidates[0].content.parts &&
+                    data.candidates[0].content.parts[0].text
+                ) {
+                    answer = data.candidates[0].content.parts[0].text;
+                } else {
+                    answer = "API 응답에서 답변을 찾을 수 없습니다.";
+                }
+
+                answerListElement.innerHTML = answer; // 
+
+            } catch (error) {
+                console.error("API 요청 에러:", error);
+                answerListElement.innerHTML = `<li class="list-group-item list-group-item-danger">API 요청 중 오류가 발생했습니다.</li><li class="list-group-item list-group-item-danger">${error}</li>`; // Bootstrap list-group-item-danger 클래스 적용 (에러 강조)
+            }
+        });
+        
+    </script>
+    </body>
+</html>

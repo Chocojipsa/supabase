@@ -95,7 +95,6 @@ async function createPost(title,content,currentUser) {
     if(error){
         return error;
     }
-    
 }
 
 async function loadPosts() {
@@ -162,6 +161,40 @@ async function updatePost_auth(postId, newTitle, newContent) {
 
     return data;
 }
+async function createPost_Recommend_auth(title,content,url, place, user_id) {
+    const {data, error} = await supabase
+        .from('posts_recommend')
+        .insert([{ title ,content,url, place, user_id}]);
+    if(error){
+        return error;
+    }
+}
+
+async function loadPosts_Recommend_auth() {
+    // posts 테이블과 userinfo 테이블을 조인하여 username 가져오기
+    const { data: posts, error } = await supabase
+      .from('posts_recommend')
+      .select(`*, userinfo : userinfo(username)`)
+      .order('id', { ascending: false });
+    if (error) {
+      return error;
+    }
+
+    return posts;
+}
+
+async function uploadImage_auth(filePath, imagefile){
+    const {error} = await supabase.storage.from('Recommend_Image').upload(filePath, imagefile);
+    if (error) {
+        return error;
+    }
+}
+
+function getImagePath(url){
+    const { data } = supabase.storage.from('Recommend_Image').getPublicUrl(url);
+    return data.publicUrl;
+}
+
+export {loadPosts, createPost, signup, login, logout, checkLogin, checkNickname,islogin, islogined, editPost_auth, deletePost_auth, updatePost_auth, createPost_Recommend_auth, loadPosts_Recommend_auth,uploadImage_auth, getImagePath};
 
 
-export {loadPosts, createPost, signup, login, logout, checkLogin, checkNickname,islogin, islogined, editPost_auth, deletePost_auth, updatePost_auth};
