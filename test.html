@@ -39,45 +39,56 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">여행 동행</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item ">
-            <a class="nav-link" href="travel.html"
-              >여행메이트 구하기</a
-            >
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="test.html">여행지 추천</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="plan.html"
-              >AI 여행일정 짜기</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link disabled"
-              href="#"
-              tabindex="-1"
-              aria-disabled="true"
-              >Disabled</a
-            >
-          </li>
-        </ul>
-      </div>
-    </nav>
+        <a class="navbar-brand" href="#">여행 동행</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <!-- 왼쪽 메뉴 (예: 페이지 링크들) -->
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="travel.html"
+                >여행메이트 구하기 <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="test.html">여행지 추천</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="plan.html">AI 여행일정 짜기</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+            </li>
+          </ul>
+          
+          <!-- 오른쪽 프로필 드롭다운 메뉴 -->
+          <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <!-- 프로필 아이콘을 드롭다운 토글로 사용 -->
+              <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <!-- 프로필 이미지 (원하는 이미지 URL로 교체) -->
+                <img src="https://i.namu.wiki/i/kEogV1jgK1-HTS5xHk3gyuJWVB8Wx8wTpSbl5y565lIVj9Lm06S3eX-0fyggVozh1I1_WjfeqoH01lE0lFPj0Mjx75p4Olg5qfYS4trJKhMnFXSpTX1snIoN535fxNi5I_dKOzZm7n8tcCpypMM6jg.webp" alt="Profile" class="rounded-circle" width="30" height="30">
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
+                <p class="dropdown-item" href="#" id = "profile"></p>
+                <a class="dropdown-item" href="#">프로필 정보</a>
+                <a class="dropdown-item" href="#">설정</a>
+                <div class="dropdown-divider"></div>
+                <!-- 로그아웃 기능 (기존 logout-btn 스크립트와 연동 가능) -->
+                <a class="dropdown-item" href="#" id="logout-btn">로그아웃</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </nav>
     <div class="container">
       <header class="text-center my-5">
         <h1>인기 여행지</h1>
@@ -135,6 +146,10 @@
     <script type="module">
         import {createPost_Recommend_auth,uploadImage_auth, loadPosts_Recommend_auth, getImagePath} from "./js/auth.js";
 
+        const profile = document.querySelector("#profile")
+        const profilename = JSON.parse(localStorage.getItem("username"));
+        profile.innerText = profilename + " 님";
+        
         const create_Btn = document.querySelector("#create_post");
         create_Btn.addEventListener("click", async (event) => {
             event.preventDefault();
@@ -221,5 +236,8 @@
 
         loadPost_Recommend();
     </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   </body>
 </html>

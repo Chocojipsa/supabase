@@ -23,10 +23,19 @@ async function login(email, password) {
         alert("로그인 실패: " + error.message);
         return;
     }
+    const username = await getuserName(data.user.id);
     localStorage.setItem("user", JSON.stringify(data.user.id)); // ✅ 로그인 상태 저장
+    localStorage.setItem("username", JSON.stringify(username)); // ✅ 로그인 상태 저장
     window.location.href = "travel.html";
 }
+async function getuserName(user_id) {
+    const datas = await supabase
+    .from("userinfo")
+    .select("username")
+    .eq("id", user_id);
 
+    return datas.data[0].username;
+}
 // ✅ 회원가입 함수
 async function signup(email, password, username) {
     const { data, error } = await supabase.auth.signUp({ email, password });
